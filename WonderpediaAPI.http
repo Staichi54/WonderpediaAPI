@@ -1,0 +1,7 @@
+@WonderpediaAPI_HostAddress = http://localhost:5074
+
+### Descripción de la API Wonderpedia
+GET {{WonderpediaAPI_HostAddress}}/
+Accept: application/json
+
+###

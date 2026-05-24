@@ -1,0 +1,17 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.rsuser
+
+appsettings.Development.json
+.env
+
+TestResults/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+
+*.nupkg
+packages/
