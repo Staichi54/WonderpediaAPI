@@ -61,9 +61,9 @@ namespace WonderpediaAPI.Controllers
         new Claim(ClaimTypes.Email, usuario.Correo)
     };
 
-    byte[] jwtKeyBytes = Encoding.UTF8.GetBytes(jwtKey);
-
-    var securityKey = new SymmetricSecurityKey(jwtKeyBytes);
+    var securityKey = new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(jwtKey)
+    );
 
     var credentials = new SigningCredentials(
         securityKey,
