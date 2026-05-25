@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +16,8 @@ namespace WonderpediaAPI.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
+        private const string MensajeUsuarioNoEncontrado = "Usuario no encontrado";
+
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
@@ -31,55 +33,55 @@ namespace WonderpediaAPI.Controllers
         }
 
         private string GenerarToken(Usuario usuario)
-{
-    string jwtKey = _configuration["Jwt:Key"]
-        ?? throw new InvalidOperationException("Jwt:Key no está configurado.");
+        {
+            string jwtKey = _configuration["Jwt:Key"]
+                ?? throw new InvalidOperationException("Jwt:Key no está configurado.");
 
-    string jwtIssuer = _configuration["Jwt:Issuer"]
-        ?? throw new InvalidOperationException("Jwt:Issuer no está configurado.");
+            string jwtIssuer = _configuration["Jwt:Issuer"]
+                ?? throw new InvalidOperationException("Jwt:Issuer no está configurado.");
 
-    string jwtAudience = _configuration["Jwt:Audience"]
-        ?? throw new InvalidOperationException("Jwt:Audience no está configurado.");
+            string jwtAudience = _configuration["Jwt:Audience"]
+                ?? throw new InvalidOperationException("Jwt:Audience no está configurado.");
 
-    string expireMinutesValue = _configuration["Jwt:ExpireMinutes"]
-        ?? throw new InvalidOperationException("Jwt:ExpireMinutes no está configurado.");
+            string expireMinutesValue = _configuration["Jwt:ExpireMinutes"]
+                ?? throw new InvalidOperationException("Jwt:ExpireMinutes no está configurado.");
 
-    if (!double.TryParse(expireMinutesValue, out double expireMinutes))
-    {
-        throw new InvalidOperationException("Jwt:ExpireMinutes debe ser un número válido.");
-    }
+            if (!double.TryParse(expireMinutesValue, out double expireMinutes))
+            {
+                throw new InvalidOperationException("Jwt:ExpireMinutes debe ser un número válido.");
+            }
 
-    if (jwtKey.Length < 32)
-    {
-        throw new InvalidOperationException("Jwt:Key debe tener al menos 32 caracteres.");
-    }
+            if (jwtKey.Length < 32)
+            {
+                throw new InvalidOperationException("Jwt:Key debe tener al menos 32 caracteres.");
+            }
 
-    var claims = new[]
-    {
-        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-        new Claim(ClaimTypes.Name, usuario.Nombre),
-        new Claim(ClaimTypes.Email, usuario.Correo)
-    };
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                new Claim(ClaimTypes.Name, usuario.Nombre),
+                new Claim(ClaimTypes.Email, usuario.Correo)
+            };
 
-    var securityKey = new SymmetricSecurityKey(
-        Encoding.UTF8.GetBytes(jwtKey)
-    );
+            var securityKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey)
+            );
 
-    var credentials = new SigningCredentials(
-        securityKey,
-        SecurityAlgorithms.HmacSha256
-    );
+            var credentials = new SigningCredentials(
+                securityKey,
+                SecurityAlgorithms.HmacSha256
+            );
 
-    var token = new JwtSecurityToken(
-        issuer: jwtIssuer,
-        audience: jwtAudience,
-        claims: claims,
-        expires: DateTime.UtcNow.AddMinutes(expireMinutes),
-        signingCredentials: credentials
-    );
+            var token = new JwtSecurityToken(
+                issuer: jwtIssuer,
+                audience: jwtAudience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(expireMinutes),
+                signingCredentials: credentials
+            );
 
-    return new JwtSecurityTokenHandler().WriteToken(token);
-}
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
 
         private int ObtenerUsuarioIdDesdeToken()
         {
@@ -142,7 +144,7 @@ namespace WonderpediaAPI.Controllers
 
             if (usuario == null)
             {
-                return NotFound(new { mensaje = "Usuario no encontrado" });
+                return NotFound(new { mensaje = MensajeUsuarioNoEncontrado });
             }
 
             return Ok(CrearUsuarioResponseDto(usuario));
@@ -265,7 +267,7 @@ namespace WonderpediaAPI.Controllers
 
             if (usuario == null)
             {
-                return NotFound(new { mensaje = "Usuario no encontrado" });
+                return NotFound(new { mensaje = MensajeUsuarioNoEncontrado });
             }
 
             if (usuario.FinalizarIngles)
@@ -304,7 +306,7 @@ namespace WonderpediaAPI.Controllers
 
             if (usuario == null)
             {
-                return NotFound(new { mensaje = "Usuario no encontrado" });
+                return NotFound(new { mensaje = MensajeUsuarioNoEncontrado });
             }
 
             if (usuario.FinalizarMates)
@@ -343,7 +345,7 @@ namespace WonderpediaAPI.Controllers
 
             if (usuario == null)
             {
-                return NotFound(new { mensaje = "Usuario no encontrado" });
+                return NotFound(new { mensaje = MensajeUsuarioNoEncontrado });
             }
 
             if (usuario.FinalizarHistoria)
@@ -382,7 +384,7 @@ namespace WonderpediaAPI.Controllers
 
             if (usuario == null)
             {
-                return NotFound(new { mensaje = "Usuario no encontrado" });
+                return NotFound(new { mensaje = MensajeUsuarioNoEncontrado });
             }
 
             usuario.FinalizarIngles = false;
@@ -414,7 +416,7 @@ namespace WonderpediaAPI.Controllers
 
             if (usuario == null)
             {
-                return NotFound(new { mensaje = "Usuario no encontrado" });
+                return NotFound(new { mensaje = MensajeUsuarioNoEncontrado });
             }
 
             string estadoIngles = usuario.FinalizarIngles ? "Completado" : "Pendiente";
@@ -497,7 +499,7 @@ namespace WonderpediaAPI.Controllers
 
             if (!usuarioExiste)
             {
-                return NotFound(new { mensaje = "Usuario no encontrado" });
+                return NotFound(new { mensaje = MensajeUsuarioNoEncontrado });
             }
 
             var historial = await _context.HistorialLogros
