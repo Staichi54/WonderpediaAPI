@@ -18,7 +18,7 @@ builder.Services.AddScoped<EmailService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// CORS para permitir conexiÛn desde Unity
+// CORS para permitir conexi√≥n desde Unity
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("PermitirUnity", policy =>
@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ConfiguraciÛn JWT
+// Configuraci√≥n JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
@@ -63,12 +63,12 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Wonderpedia API",
         Version = "v1",
-        Description = "API para la gestiÛn de usuarios, autenticaciÛn, progreso acadÈmico y envÌo de correos del videojuego educativo Wonderpedia."
+        Description = "API para la gesti√≥n de usuarios, autenticaci√≥n, progreso acad√©mico y env√≠o de correos del videojuego educativo Wonderpedia."
     });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Ingresa el token JWT asÌ: Bearer TU_TOKEN",
+        Description = "Ingresa el token JWT as√≠: Bearer TU_TOKEN",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -118,17 +118,17 @@ app.MapGet("/", () => new
 {
     nombre = "Wonderpedia API",
     version = "1.0",
-    descripcion = "API para el manejo de usuarios, inicio de sesiÛn, registro, progreso acadÈmico y envÌo de correos del videojuego Wonderpedia.",
+    descripcion = "API para el manejo de usuarios, inicio de sesi√≥n, registro, progreso acad√©mico y env√≠o de correos del videojuego Wonderpedia.",
     modulos = new[]
     {
         "Usuarios",
-        "AutenticaciÛn",
-        "Progreso de InglÈs",
-        "Progreso de Matem·ticas",
+        "Autenticaci√≥n",
+        "Progreso de Ingl√©s",
+        "Progreso de Matem√°ticas",
         "Progreso de Historia",
-        "EnvÌo de correo"
+        "Env√≠o de correo"
     }
 })
 .ExcludeFromDescription();
 
-app.Run();
+await app.RunAsync();
