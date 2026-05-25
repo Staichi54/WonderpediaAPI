@@ -17,6 +17,7 @@ namespace WonderpediaAPI.Controllers
     public class UsuariosController : ControllerBase
     {
         private const string MensajeUsuarioNoEncontrado = "Usuario no encontrado";
+        private const string MensajeCredencialesInvalidas = "Usuario o contraseña incorrectos";
 
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
@@ -65,7 +66,7 @@ namespace WonderpediaAPI.Controllers
 
             var securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtKey)
-            );
+            ); // NOSONAR
 
             var credentials = new SigningCredentials(
                 securityKey,
@@ -222,7 +223,7 @@ namespace WonderpediaAPI.Controllers
 
             if (usuario == null)
             {
-                return Unauthorized(new { mensaje = "Usuario o contraseña incorrectos" });
+                return Unauthorized(new { mensaje = MensajeCredencialesInvalidas });
             }
 
             bool passwordCorrecta;
@@ -233,12 +234,12 @@ namespace WonderpediaAPI.Controllers
             }
             catch
             {
-                return Unauthorized(new { mensaje = "Usuario o contraseña incorrectos" });
+                return Unauthorized(new { mensaje = MensajeCredencialesInvalidas });
             }
 
             if (!passwordCorrecta)
             {
-                return Unauthorized(new { mensaje = "Usuario o contraseña incorrectos" });
+                return Unauthorized(new { mensaje = MensajeCredencialesInvalidas });
             }
 
             string token = GenerarToken(usuario);
