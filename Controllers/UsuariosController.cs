@@ -31,32 +31,55 @@ namespace WonderpediaAPI.Controllers
         }
 
         private string GenerarToken(Usuario usuario)
-        {
-            string jwtKey = _configuration["Jwt:Key"]!;
-            string jwtIssuer = _configuration["Jwt:Issuer"]!;
-            string jwtAudience = _configuration["Jwt:Audience"]!;
-            double expireMinutes = Convert.ToDouble(_configuration["Jwt:ExpireMinutes"]);
+{
+    string jwtKey = _configuration["Jwt:Key"]
+        ?? throw new InvalidOperationException("Jwt:Key no está configurado.");
 
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new Claim(ClaimTypes.Name, usuario.Nombre),
-                new Claim(ClaimTypes.Email, usuario.Correo)
-            };
+    string jwtIssuer = _configuration["Jwt:Issuer"]
+        ?? throw new InvalidOperationException("Jwt:Issuer no está configurado.");
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    string jwtAudience = _configuration["Jwt:Audience"]
+        ?? throw new InvalidOperationException("Jwt:Audience no está configurado.");
 
-            var token = new JwtSecurityToken(
-                issuer: jwtIssuer,
-                audience: jwtAudience,
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(expireMinutes),
-                signingCredentials: credentials
-            );
+    string expireMinutesValue = _configuration["Jwt:ExpireMinutes"]
+        ?? throw new InvalidOperationException("Jwt:ExpireMinutes no está configurado.");
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+    if (!double.TryParse(expireMinutesValue, out double expireMinutes))
+    {
+        throw new InvalidOperationException("Jwt:ExpireMinutes debe ser un número válido.");
+    }
+
+    if (jwtKey.Length < 32)
+    {
+        throw new InvalidOperationException("Jwt:Key debe tener al menos 32 caracteres.");
+    }
+
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+        new Claim(ClaimTypes.Name, usuario.Nombre),
+        new Claim(ClaimTypes.Email, usuario.Correo)
+    };
+
+    byte[] jwtKeyBytes = Encoding.UTF8.GetBytes(jwtKey);
+
+    var securityKey = new SymmetricSecurityKey(jwtKeyBytes);
+
+    var credentials = new SigningCredentials(
+        securityKey,
+        SecurityAlgorithms.HmacSha256
+    );
+
+    var token = new JwtSecurityToken(
+        issuer: jwtIssuer,
+        audience: jwtAudience,
+        claims: claims,
+        expires: DateTime.UtcNow.AddMinutes(expireMinutes),
+        signingCredentials: credentials
+    );
+
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
 
         private int ObtenerUsuarioIdDesdeToken()
         {
