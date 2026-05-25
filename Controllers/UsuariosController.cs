@@ -35,8 +35,8 @@ namespace WonderpediaAPI.Controllers
 
         private string GenerarToken(Usuario usuario)
         {
-            string jwtKey = _configuration["Jwt:Key"]
-                ?? throw new InvalidOperationException("Jwt:Key no está configurado.");
+            string jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
+                ?? throw new InvalidOperationException("JWT_KEY no está configurada.");
 
             string jwtIssuer = _configuration["Jwt:Issuer"]
                 ?? throw new InvalidOperationException("Jwt:Issuer no está configurado.");
@@ -54,7 +54,7 @@ namespace WonderpediaAPI.Controllers
 
             if (jwtKey.Length < 32)
             {
-                throw new InvalidOperationException("Jwt:Key debe tener al menos 32 caracteres.");
+                throw new InvalidOperationException("JWT_KEY debe tener al menos 32 caracteres.");
             }
 
             var claims = new[]
@@ -66,7 +66,7 @@ namespace WonderpediaAPI.Controllers
 
             var securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtKey)
-            ); // NOSONAR
+            );
 
             var credentials = new SigningCredentials(
                 securityKey,
